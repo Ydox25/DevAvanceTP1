@@ -6,7 +6,7 @@ import java.sql.SQLException;
 public class ConnectionDB {
     private String url = "jdbc:postgresql://database-etudiants:5432/ybenouda";
     private String user = "ybenouda";
-    private String passwd = "Pcsro/147";
+    private String passwd = "Pas mon vrai mdp";
     /**
      * Objet Connection
      */
