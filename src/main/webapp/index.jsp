@@ -14,6 +14,5 @@
 <br>
 <a href="AnnonceList">Liste Annonces</a>
 <br>
-<a href="AnnonceUpdate">Update Annonce</a>
 </body>
 </html>

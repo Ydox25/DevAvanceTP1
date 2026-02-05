@@ -18,32 +18,33 @@ public class AnnonceAdd extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String title = request.getParameter("title");
-        String description = request.getParameter("description");
-        String adress = request.getParameter("adress");
-        String mail = request.getParameter("mail");
+        try {
+            // 1. Récupérer les données
+            String title = request.getParameter("title");
+            String description = request.getParameter("description");
+            String adress = request.getParameter("adress");
+            String mail = request.getParameter("mail");
 
+            // 2. Créer l'objet
+            Annonce annonce = new Annonce();
+            annonce.setTitle(title);
+            annonce.setDescription(description);
+            annonce.setAdress(adress);
+            annonce.setMail(mail);
 
-        try (Connection c = ConnectionDB.getInstance()) {
-
-            String sql = "INSERT INTO annonce (title, description, adress, mail, date) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
-
-            try (PreparedStatement pstmt = c.prepareStatement(sql)) {
-                pstmt.setString(1, title);
-                pstmt.setString(2, description);
-                pstmt.setString(3, adress);
-                pstmt.setString(4, mail);
-
-                pstmt.executeUpdate();
-
+            // 3. Utiliser le DAO pour sauver (plus propre !)
+            AnnonceDAO dao = new AnnonceDAO();
+            if(dao.create(annonce)) {
                 System.out.println("Annonce insérée avec succès");
+            } else {
+                throw new ServletException("Échec de l'insertion");
             }
+
+            response.sendRedirect("AnnonceList"); // Redirige vers la liste plutôt que de rester bloqué
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ServletException("Erreur lors de l'insertion dans la bd", e);
+            throw new ServletException("Erreur technique", e);
         }
-
-        response.sendRedirect("AnnonceAdd?status=success");
     }
 }
