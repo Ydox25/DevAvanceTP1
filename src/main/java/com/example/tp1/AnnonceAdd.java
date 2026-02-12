@@ -1,18 +1,31 @@
 package com.example.tp1;
 
-import java.io.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import com.example.tp1.entity.Annonce;
+import com.example.tp1.entity.Category;
+import com.example.tp1.entity.User;
+import com.example.tp1.service.AnnonceService;
+
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @WebServlet(name = "AnnonceAdd", value = "/AnnonceAdd")
 public class AnnonceAdd extends HttpServlet {
 
+    private AnnonceService annonceService;
+
+    @Override
+    public void init() throws ServletException {
+        this.annonceService = new AnnonceService();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        chargerCategories(request);
         this.getServletContext().getRequestDispatcher("/AnnonceAdd.jsp").forward(request, response);
     }
 
@@ -22,28 +35,61 @@ public class AnnonceAdd extends HttpServlet {
         String description = request.getParameter("description");
         String adress = request.getParameter("adress");
         String mail = request.getParameter("mail");
+        String catIdStr = request.getParameter("categoryId");
 
+        Map<String, String> errors = new HashMap<>();
 
-        try (Connection c = ConnectionDB.getInstance()) {
+        if (title == null || title.trim().length() < 5) {
+            errors.put("title", "Le titre doit contenir au moins 5 caractères.");
+        }
+        if (description == null || description.trim().length() < 10) {
+            errors.put("description", "La description doit être plus détaillée (min 10 car.).");
+        }
+        if (mail == null || !mail.contains("@")) {
+            errors.put("mail", "L'adresse email n'est pas valide.");
+        }
 
-            String sql = "INSERT INTO annonce (title, description, adress, mail, date) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        if (!errors.isEmpty()) {
+            request.setAttribute("errors", errors);
+            request.setAttribute("oldTitle", title);
+            request.setAttribute("oldDesc", description);
+            request.setAttribute("oldAdress", adress);
+            request.setAttribute("oldMail", mail);
+            request.setAttribute("oldCatId", catIdStr);
 
-            try (PreparedStatement pstmt = c.prepareStatement(sql)) {
-                pstmt.setString(1, title);
-                pstmt.setString(2, description);
-                pstmt.setString(3, adress);
-                pstmt.setString(4, mail);
+            chargerCategories(request); // Important : recharger la liste pour le select
+            this.getServletContext().getRequestDispatcher("/AnnonceAdd.jsp").forward(request, response);
+            return;
+        }
 
-                pstmt.executeUpdate();
+        try {
+            Long categoryId = Long.parseLong(catIdStr);
 
-                System.out.println("Annonce insérée avec succès");
+            Annonce annonce = new Annonce();
+            annonce.setTitle(title);
+            annonce.setDescription(description);
+            annonce.setAdress(adress);
+            annonce.setMail(mail);
+
+            HttpSession session = request.getSession();
+            User user = (User) session.getAttribute("user");
+
+            if (user == null) {
+                response.sendRedirect("Login");
+                return;
             }
+
+            annonceService.createAnnonce(annonce, user.getId(), categoryId);
+            response.sendRedirect("AnnonceList?status=success");
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ServletException("Erreur lors de l'insertion dans la bd", e);
+            throw new ServletException("Erreur technique", e);
         }
+    }
 
-        response.sendRedirect("AnnonceAdd?status=success");
+    private void chargerCategories(HttpServletRequest request) {
+        List<Category> categories = annonceService.getAllCategories();
+        request.setAttribute("categories", categories);
     }
 }

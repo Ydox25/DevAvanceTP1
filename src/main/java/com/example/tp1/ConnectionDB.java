@@ -6,7 +6,7 @@ import java.sql.SQLException;
 public class ConnectionDB {
     private String url = "jdbc:postgresql://database-etudiants:5432/ybenouda";
     private String user = "ybenouda";
-    private String passwd = "Pas mon vrai mdp";
+    private String passwd = "mdp";
     /**
      * Objet Connection
      */
@@ -18,9 +18,14 @@ public class ConnectionDB {
     private ConnectionDB() throws ClassNotFoundException{
         try {
             Class.forName("org.postgresql.Driver");
-            connect = DriverManager.getConnection(url, user, passwd);
+            this.connect = DriverManager.getConnection(url, user, passwd);
+            if (this.connect != null) {
+                System.out.println("Connexion réussie à la base !");
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Pilote PostgreSQL introuvable (JAR manquant) !", e);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Impossible de se connecter à la base : " + e.getMessage(), e);
         }
     }
     /**

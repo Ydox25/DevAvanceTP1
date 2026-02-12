@@ -1,4 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+
+<jsp:useBean id="errors" scope="request" type="java.util.Map<java.lang.String, java.lang.String>"/>
+<jsp:useBean id="oldTitle" scope="request" type="java.lang.String"/>
+<jsp:useBean id="oldDesc" scope="request" type="java.lang.String"/>
+<jsp:useBean id="oldAdress" scope="request" type="java.lang.String"/>
+<jsp:useBean id="oldMail" scope="request" type="java.lang.String"/>
+<jsp:useBean id="oldCatId" scope="request" type="java.lang.String"/>
+<jsp:useBean id="categories" scope="request" type="java.util.List<com.example.tp1.entity.Category>"/>
+
 <html>
 <head>
     <title>Ajout d'une annonce</title>
@@ -44,7 +54,8 @@
         }
 
         input[type="text"],
-        textarea {
+        textarea,
+        select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -56,7 +67,8 @@
         }
 
         input[type="text"]:focus,
-        textarea:focus {
+        textarea:focus,
+        select:focus {
             outline: none;
             border-color: #555;
             box-shadow: 0 0 5px rgba(85, 85, 85, 0.2);
@@ -84,8 +96,18 @@
             background-color: #45a049;
         }
 
-        .btn-submit:active {
-            background-color: #3d8b40;
+        /* Styles spécifiques pour les erreurs */
+        .error-msg {
+            color: #D32F2F;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .input-error {
+            border-color: #D32F2F !important;
+            background-color: #fff8f8;
         }
     </style>
 </head>
@@ -96,24 +118,56 @@
     </div>
 
     <form action="AnnonceAdd" method="POST">
+
         <div class="form-group">
             <label for="title">Titre :</label>
-            <input type="text" id="title" name="title" placeholder="Titre de l'annonce" required>
+            <input type="text" id="title" name="title"
+                   value="${oldTitle}"
+                   class="${not empty errors['title'] ? 'input-error' : ''}"
+                   placeholder="Titre de l'annonce">
+
+            <c:if test="${not empty errors['title']}">
+                <span class="error-msg">${errors['title']}</span>
+            </c:if>
         </div>
 
         <div class="form-group">
             <label for="description">Description :</label>
-            <textarea id="description" name="description" placeholder="Description de l'annonce" required></textarea>
+            <textarea id="description" name="description"
+                      class="${not empty errors['description'] ? 'input-error' : ''}"
+                      placeholder="Description de l'annonce">${oldDesc}</textarea>
+
+            <c:if test="${not empty errors['description']}">
+                <span class="error-msg">${errors['description']}</span>
+            </c:if>
         </div>
 
         <div class="form-group">
             <label for="adress">Adresse :</label>
-            <input type="text" id="adress" name="adress" placeholder="Adresse" required>
+            <input type="text" id="adress" name="adress" value="${oldAdress}" required>
         </div>
 
         <div class="form-group">
             <label for="mail">Email :</label>
-            <input type="text" id="mail" name="mail" placeholder="Email" required>
+            <input type="text" id="mail" name="mail"
+                   value="${oldMail}"
+                   class="${not empty errors['mail'] ? 'input-error' : ''}"
+                   placeholder="Ex: contact@exemple.com">
+
+            <c:if test="${not empty errors['mail']}">
+                <span class="error-msg">${errors['mail']}</span>
+            </c:if>
+        </div>
+
+        <div class="form-group">
+            <label for="categoryId">Catégorie :</label>
+            <select id="categoryId" name="categoryId" required>
+                <c:forEach items="${categories}" var="c">
+                    <option value="${c.id}" ${String.valueOf(c.id).equals(oldCatId) ? 'selected' : ''}>
+                            ${c.label}
+                    </option>
+                </c:forEach>
+            </select>
         </div>
 
         <button type="submit" class="btn-submit">Création de l'annonce</button>

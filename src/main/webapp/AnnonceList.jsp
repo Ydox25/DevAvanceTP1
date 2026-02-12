@@ -1,4 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<jsp:useBean id="annonces" scope="request" type="java.util.List<com.example.tp1.entity.Annonce>"/>
+<jsp:useBean id="search" scope="request" type="java.lang.String"/>
+<jsp:useBean id="currentPage" scope="request" type="java.lang.Integer"/>
+<jsp:useBean id="totalPages" scope="request" type="java.lang.Integer"/>
 <html>
 <head>
   <title>Liste des Annonces</title>
@@ -119,48 +124,53 @@
 <div class="container">
   <div class="header">
     <h1>Annonces</h1>
+    <form method="GET" action="AnnonceList" style="display:inline-block; margin-left:20px;">
+      <label>
+        <input type="text" name="search" placeholder="Rechercher..." value="${search}">
+      </label>
+      <button type="submit">OK</button>
+    </form>
     <a href="AnnonceAdd" class="btn-add">+ Ajouter annonce</a>
   </div>
 
-  <c:choose>
-    <c:when test="${not empty annonces}">
-      <table>
-        <thead>
-        <tr>
-          <th>Titre</th>
-          <th>Adresse</th>
-          <th>Email</th>
-          <th>Date de publication</th>
-          <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <c:forEach items="${annonces}" var="a">
-          <tr>
-            <td><strong>${a.title}</strong></td>
-            <td>${a.adress}</td>
-            <td>${a.mail}</td>
-            <td>${a.date}</td>
-            <td>
-              <div class="actions">
-                <a href="AnnonceUpdate?id=${a.id}" class="btn-edit">Modifier</a>
-                <a href="AnnonceDelete?id=${a.id}" class="btn-delete"
-                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?');">
-                  Supprimer
-                </a>
-              </div>
-            </td>
-          </tr>
-        </c:forEach>
-        </tbody>
-      </table>
-    </c:when>
-    <c:otherwise>
-      <div class="no-data">
-        <p>Aucune annonce disponible</p>
-      </div>
-    </c:otherwise>
-  </c:choose>
+  <table>
+    <thead>
+    <tr>
+      <th>Titre</th>
+      <th>Catégorie</th> <th>Prix/Desc</th>
+      <th>Statut</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach items="${annonces}" var="a">
+      <tr>
+        <td><strong>${a.title}</strong></td>
+        <td>${a.category.label}</td> <td>${a.description}</td>
+        <td>${a.status}</td>
+        <td>
+          <div class="actions">
+            <a href="AnnonceUpdate?id=${a.id}" class="btn-edit">Modifier</a>
+            <a href="AnnonceDelete?id=${a.id}" class="btn-delete"
+               onclick="return confirm('Supprimer ?');">Supprimer</a>
+          </div>
+        </td>
+      </tr>
+    </c:forEach>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 20px; text-align: center;">
+    <c:if test="${currentPage > 1}">
+      <a href="AnnonceList?page=${currentPage - 1}&search=${search}">Précédent</a>
+    </c:if>
+
+    <span>Page ${currentPage} sur ${totalPages}</span>
+
+    <c:if test="${currentPage < totalPages}">
+      <a href="AnnonceList?page=${currentPage + 1}&search=${search}">Suivant</a>
+    </c:if>
+  </div>
 </div>
 
 </body>
