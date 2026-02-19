@@ -1,9 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<jsp:useBean id="annonces" scope="request" type="java.util.List<com.example.tp1.entity.Annonce>"/>
-<jsp:useBean id="search" scope="request" type="java.lang.String"/>
-<jsp:useBean id="currentPage" scope="request" type="java.lang.Integer"/>
-<jsp:useBean id="totalPages" scope="request" type="java.lang.Integer"/>
+
 <html>
 <head>
   <title>Liste des Annonces</title>

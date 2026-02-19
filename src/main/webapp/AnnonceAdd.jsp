@@ -1,13 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
-<jsp:useBean id="errors" scope="request" type="java.util.Map<java.lang.String, java.lang.String>"/>
-<jsp:useBean id="oldTitle" scope="request" type="java.lang.String"/>
-<jsp:useBean id="oldDesc" scope="request" type="java.lang.String"/>
-<jsp:useBean id="oldAdress" scope="request" type="java.lang.String"/>
-<jsp:useBean id="oldMail" scope="request" type="java.lang.String"/>
-<jsp:useBean id="oldCatId" scope="request" type="java.lang.String"/>
-<jsp:useBean id="categories" scope="request" type="java.util.List<com.example.tp1.entity.Category>"/>
+
 
 <html>
 <head>
