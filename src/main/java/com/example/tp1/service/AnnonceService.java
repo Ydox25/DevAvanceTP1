@@ -1,5 +1,6 @@
 package com.example.tp1.service;
 
+import com.example.tp1.dto.AnnonceCreateDTO;
 import com.example.tp1.entity.*;
 import com.example.tp1.repository.*;
 import com.example.tp1.util.EntityManagerProducer;
@@ -177,6 +178,49 @@ public class AnnonceService {
         EntityManager em = EntityManagerProducer.getEntityManager();
         try {
             return new CategoryRepository(em).findAll();
+        } finally {
+            em.close();
+        }
+    }
+
+    public Annonce patchAnnonce(Long id, AnnonceCreateDTO patchDto) {
+        EntityManager em = EntityManagerProducer.getEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            Annonce annonce = em.find(Annonce.class, id);
+            if (annonce == null) {
+                throw new IllegalArgumentException("Annonce introuvable");
+            }
+
+            // On ne modifie QUE les champs qui ne sont pas nulls dans le DTO
+            if (patchDto.getTitle() != null) {
+                annonce.setTitle(patchDto.getTitle());
+            }
+            if (patchDto.getDescription() != null) {
+                annonce.setDescription(patchDto.getDescription());
+            }
+            if (patchDto.getAdress() != null) {
+                annonce.setAdress(patchDto.getAdress());
+            }
+            if (patchDto.getMail() != null) {
+                annonce.setMail(patchDto.getMail());
+            }
+            if (patchDto.getCategoryId() != null) {
+                Category category = em.find(Category.class, patchDto.getCategoryId());
+                if (category != null) {
+                    annonce.setCategory(category);
+                }
+            }
+
+            em.merge(annonce);
+            em.getTransaction().commit();
+            return annonce;
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
         } finally {
             em.close();
         }
