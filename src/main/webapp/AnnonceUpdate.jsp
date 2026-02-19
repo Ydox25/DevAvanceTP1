@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %> <html>
 <head>
     <title>Mise à jour d'une annonce</title>
     <style>
@@ -45,7 +45,8 @@
 
         input[type="text"],
         input[type="email"],
-        textarea {
+        textarea,
+        select /* Ajout du style pour le select */ {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -58,7 +59,8 @@
 
         input[type="text"]:focus,
         input[type="email"]:focus,
-        textarea:focus {
+        textarea:focus,
+        select:focus {
             outline: none;
             border-color: #555;
             box-shadow: 0 0 5px rgba(85, 85, 85, 0.2);
@@ -112,12 +114,23 @@
 
         <div class="form-group">
             <label for="adress">Adresse :</label>
-            <input type="text" id="adress" name="adress" value="${annonce.adress}" required>
+            <input type="text" id="adress" name="address" value="${annonce.adress}" required>
         </div>
 
         <div class="form-group">
             <label for="mail">Email :</label>
             <input type="email" id="mail" name="mail" value="${annonce.mail}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="categoryId">Catégorie :</label>
+            <select id="categoryId" name="categoryId" required>
+                <c:forEach items="${categories}" var="c">
+                    <option value="${c.id}" ${c.id == annonce.category.id ? 'selected' : ''}>
+                            ${c.label}
+                    </option>
+                </c:forEach>
+            </select>
         </div>
 
         <button type="submit" class="btn-submit">Modifier l'annonce</button>

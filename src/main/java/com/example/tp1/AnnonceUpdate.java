@@ -1,34 +1,59 @@
 package com.example.tp1;
 
+import com.example.tp1.entity.Annonce;
+import com.example.tp1.service.AnnonceService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 @WebServlet("/AnnonceUpdate")
 public class AnnonceUpdate extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        try {
-            Annonce a = new AnnonceDAO().find(id);
-            request.setAttribute("annonce", a);
-            this.getServletContext().getRequestDispatcher("/AnnonceUpdate.jsp").forward(request, response);
-        } catch (Exception e) { e.printStackTrace(); }
+
+    private AnnonceService annonceService;
+
+    @Override
+    public void init() throws ServletException {
+        this.annonceService = new AnnonceService();
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            Annonce a = new Annonce();
-            a.setId(Integer.parseInt(request.getParameter("id"))); // CachÃ© dans le form
-            a.setTitle(request.getParameter("title"));
-            a.setDescription(request.getParameter("description"));
-            a.setAdress(request.getParameter("adress"));
-            a.setMail(request.getParameter("mail"));
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String idStr = request.getParameter("id");
+        if (idStr != null) {
+            Long id = Long.parseLong(idStr);
+            Annonce annonce = annonceService.getAnnonce(id);
 
-            new AnnonceDAO().update(a);
-            response.sendRedirect("AnnonceList");
-        } catch (Exception e) { e.printStackTrace(); }
+            if (annonce != null) {
+                request.setAttribute("annonce", annonce);
+                request.setAttribute("categories", annonceService.getAllCategories());
+                this.getServletContext().getRequestDispatcher("/AnnonceUpdate.jsp").forward(request, response);
+                return;
+            }
+        }
+        response.sendRedirect("AnnonceList");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Long id = Long.parseLong(request.getParameter("id"));
+        String title = request.getParameter("title");
+        String description = request.getParameter("description");
+        String address = request.getParameter("address");
+        String mail = request.getParameter("mail");
+        Long categoryId = Long.parseLong(request.getParameter("categoryId"));
+
+        Annonce annonceModifiee = new Annonce();
+        annonceModifiee.setId(id);
+        annonceModifiee.setTitle(title);
+        annonceModifiee.setDescription(description);
+        annonceModifiee.setAdress(address);
+
+        annonceService.updateAnnonce(annonceModifiee, categoryId);
+
+        response.sendRedirect("AnnonceList");
     }
 }

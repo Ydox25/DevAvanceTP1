@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<jsp:useBean id="error" scope="request" type="java.lang.String"/>
+
 <html>
 <head>
   <title>Connexion</title>
